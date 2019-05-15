@@ -1,5 +1,7 @@
 package br.org.catolicasc.mapsgoogle;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -24,6 +27,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private DAL dal;
     private Cursor cursor;
+    private AlertDialog alerta;
     private static final String TAG = "MapsActivity";
 
     @Override
@@ -87,9 +91,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for(int i = 0; i < cursor.getCount(); i++) {
 
             LatLng ponto = new LatLng(cursor.getDouble(cursor.getColumnIndex(CreateDatabase.LATITUDE)), cursor.getDouble(cursor.getColumnIndex(CreateDatabase.LONGITUDE)));
-            mMap.addMarker(new MarkerOptions().position(ponto).title("Nome: "+cursor.getString(cursor.getColumnIndex(CreateDatabase.NOME))+" / E-mail: "+cursor.getString(cursor.getColumnIndex(CreateDatabase.EMAIL))));
+            mMap.addMarker(new MarkerOptions().position(ponto).title("Nome: "+cursor.getString(cursor.getColumnIndex(CreateDatabase.NOME))+"/ E-mail: "+cursor.getString(cursor.getColumnIndex(CreateDatabase.EMAIL))));
             cursor.moveToNext();
         }
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(catolica, 15));
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setTitle(marker.getTitle());
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        alerta.dismiss();
+                    }
+                });
+                alerta = builder.create();
+                alerta.show();
+                return false;
+            }
+        });
     }
 }
